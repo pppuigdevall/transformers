@@ -27,6 +27,7 @@ from packaging import version
 from torch import nn
 from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 
+import transformers
 from transformers.configuration_utils import PretrainedConfig
 
 from ...activations import get_activation
@@ -338,15 +339,19 @@ class Transformer(nn.Module):
         """
         all_hidden_states = () if output_hidden_states else None
         all_attentions = () if output_attentions else None
-
+        transformers.logging.debug(f"output_hidden_states = {output_hidden_states}")
+        transformers.logging.debug(
+            f"output_attentions = {output_attentions}")
         hidden_state = x
         for i, layer_module in enumerate(self.layer):
+
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_state,)
-
+            transformers.logging.debug(f"About to infer layer {i}")
             layer_outputs = layer_module(
                 x=hidden_state, attn_mask=attn_mask, head_mask=head_mask[i], output_attentions=output_attentions
             )
+            transformers.logging.debug(f"Done inference {i}")
             hidden_state = layer_outputs[-1]
 
             if output_attentions:
@@ -565,7 +570,10 @@ class DistilBertModel(DistilBertPreTrainedModel):
         head_mask = self.get_head_mask(head_mask, self.config.num_hidden_layers)
 
         if inputs_embeds is None:
+            transformers.logging.debug("About to do embeddings in line 570")
             inputs_embeds = self.embeddings(input_ids)  # (bs, seq_length, dim)
+            transformers.logging.debug("Embeddings created successfully")
+        transformers.logging.debug("STARTING TRANSFORMER INFERENCE")
         return self.transformer(
             x=inputs_embeds,
             attn_mask=attention_mask,
