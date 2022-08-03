@@ -94,6 +94,7 @@ def _create_sinusoidal_embeddings(n_pos: int, dim: int, out: torch.Tensor):
 class Embeddings(nn.Module):
     def __init__(self, config: PretrainedConfig):
         super().__init__()
+        torch.set_num_threads(1) # https://blog.roblox.com/2020/05/scaled-bert-serve-1-billion-daily-requests-cpus/
         self.word_embeddings = nn.Embedding(config.vocab_size, config.dim, padding_idx=config.pad_token_id)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.dim)
         if config.sinusoidal_pos_embds:
