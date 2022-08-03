@@ -132,10 +132,13 @@ class Embeddings(nn.Module):
         word_embeddings = self.word_embeddings(input_ids)  # (bs, max_seq_length, dim)
         logger.debug("word embeddings done")
         position_embeddings = self.position_embeddings(position_ids)  # (bs, max_seq_length, dim)
-
+        logger.debug("Position embeddings done")
         embeddings = word_embeddings + position_embeddings  # (bs, max_seq_length, dim)
+        logger.debug("Position embeddings + word_embeddings done")
         embeddings = self.LayerNorm(embeddings)  # (bs, max_seq_length, dim)
+        logger.debug("Layernorm done")
         embeddings = self.dropout(embeddings)  # (bs, max_seq_length, dim)
+        logger.debug("dropout embeddings done")
         return embeddings
 
 
